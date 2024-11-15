@@ -18,20 +18,18 @@ namespace game_hw
         public float positionX;
         public float positionY;
         public List<int> shields = new List<int>();
-        Texture texture = new Texture();
         static float[] redColor = { 1.0f, 0.0f, 0.0f };
         static float[] greenColor = { 0.0f, 1.0f, 0.0f };
         static float[] blueColor = { 0.0f, 0.0f, 1.0f };
         static float[] yellowColor = { 0.0f, 1.0f, 1.0f };
         float[][] colors = { redColor, greenColor, blueColor, yellowColor };
 
-        public Enemy(float posX, float posY, List<int> shields, Texture enemyTexture)
+        public Enemy(float posX, float posY, List<int> shields)
         {
             positionX = posX;
             positionY = posY;
             calculateDirection();
             this.shields = shields;
-            this.texture = enemyTexture;
         }
 
         public void die()
@@ -52,7 +50,7 @@ namespace game_hw
             positionY += direcitonY;
         }
 
-        public void draw(OpenGL gl)
+        public void draw(OpenGL gl, Texture texture)
         {
             calculatePosition();
 

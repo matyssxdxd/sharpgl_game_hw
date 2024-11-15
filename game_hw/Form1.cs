@@ -29,6 +29,8 @@ namespace game_hw
         Random rand = new Random();
 
         Timer enemyTimer = new Timer();
+        Timer bulletSprayTimer = new Timer();
+
 
         int health = 3;
         int level = 1;
@@ -61,6 +63,9 @@ namespace game_hw
             enemyTimer.Interval = enemySpawnInterval;
             enemyTimer.Tick += new EventHandler(EnemyTimer_Tick);
             enemyTimer.Start();
+
+            bulletSprayTimer.Interval = 100;
+            bulletSprayTimer.Tick += (sender, e) => addBullet();
         }
 
         private void EnemyTimer_Tick(object sender, EventArgs e)
@@ -98,8 +103,7 @@ namespace game_hw
 
         private void openGLControl1_MouseClick(object sender, MouseEventArgs e)
         {
-            Bullet bullet = new Bullet(colors[currentBulletColor], mouseX, mouseY, currentBulletColor);
-            bullets.Add(bullet);
+            // addBullet();
         }
 
         private void generateEnemies()
@@ -114,7 +118,7 @@ namespace game_hw
                 shields.Add(rand.Next(0, 4));
             }
 
-            Enemy enemy = new Enemy(x, y, shields, enemyTexture);
+            Enemy enemy = new Enemy(x, y, shields);
        
             enemies.Add(enemy);
         }
@@ -184,7 +188,7 @@ namespace game_hw
             {
                 var enemy = enemies[i];
 
-                enemy.draw(gl);
+                enemy.draw(gl, enemyTexture);
 
                 if (enemy.positionX >= -0.25f && enemy.positionX <= 0.25f &&
                     enemy.positionY >= -0.25f && enemy.positionY <= 0.25f)
@@ -214,13 +218,7 @@ namespace game_hw
             {
                 var bullet = bullets[i];
 
-                bullet.updatePosition();
-
-                gl.PointSize(2);
-                gl.Begin(SharpGL.Enumerations.BeginMode.Points);
-                gl.Color(bullet.color);
-                gl.Vertex(bullet.positionX, bullet.positionY, 0.0f);
-                gl.End();
+                bullet.draw(gl);
 
                 int originalX = (int)Math.Round((bullets[i].positionX * 90) + openGLControl1.Width / 2);
                 int originalY = (int)Math.Round((bullets[i].positionY * -90) + openGLControl1.Height / 2);
@@ -280,6 +278,23 @@ namespace game_hw
             }
         }
 
+        private void openGLControl1_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                addBullet();
+                bulletSprayTimer.Start();
+            }
+        }
+
+        private void openGLControl1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                bulletSprayTimer.Stop();
+            }
+        }
+
         private void restartGame()
         {
             health = 3;
@@ -297,6 +312,13 @@ namespace game_hw
 
             isAlive = true;
         }
+
+        private void addBullet()
+        {
+            Bullet bullet = new Bullet(colors[currentBulletColor], mouseX, mouseY, currentBulletColor);
+            bullets.Add(bullet);
+        }
+
 
     }
 }

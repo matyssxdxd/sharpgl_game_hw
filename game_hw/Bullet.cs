@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpGL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,6 +36,17 @@ namespace game_hw
         {
             positionX += directionX;
             positionY += directionY;
+        }
+
+        public void draw(OpenGL gl)
+        {
+            updatePosition();
+
+            gl.PointSize(2);
+            gl.Begin(SharpGL.Enumerations.BeginMode.Points);
+            gl.Color(color);
+            gl.Vertex(positionX, positionY, 0.0f);
+            gl.End();
         }
     }
 }
