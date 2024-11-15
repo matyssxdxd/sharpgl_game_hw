@@ -114,7 +114,7 @@ namespace game_hw
                 shields.Add(rand.Next(0, 4));
             }
 
-            Enemy enemy = new Enemy(x, y, shields);
+            Enemy enemy = new Enemy(x, y, shields, enemyTexture);
        
             enemies.Add(enemy);
         }
@@ -184,53 +184,20 @@ namespace game_hw
             {
                 var enemy = enemies[i];
 
-                if (enemy.isAlive)
+                enemy.draw(gl);
+
+                if (enemy.positionX >= -0.25f && enemy.positionX <= 0.25f &&
+                    enemy.positionY >= -0.25f && enemy.positionY <= 0.25f)
                 {
-                    enemy.calculatePosition();
-
-                    gl.Enable(OpenGL.GL_TEXTURE_2D);
-                    enemyTexture.Bind(gl);
-
-                    gl.Begin(OpenGL.GL_QUADS);
-                    gl.Color(1.0f, 1.0f, 1.0f);
-                    gl.TexCoord(0.0f, 1.0f); gl.Vertex(-0.25f + enemy.positionX, -0.25f + enemy.positionY, 0.0f);
-                    gl.TexCoord(1.0f, 1.0f); gl.Vertex(0.25f + enemy.positionX, -0.25f + enemy.positionY, 0.0f);
-                    gl.TexCoord(1.0f, 0.0f); gl.Vertex(0.25f + enemy.positionX, 0.25f + enemy.positionY, 0.0f);
-                    gl.TexCoord(0.0f, 0.0f); gl.Vertex(-0.25f + enemy.positionX, 0.25f + enemy.positionY, 0.0f);
-
-                    gl.End();
-
-                    gl.BindTexture(OpenGL.GL_TEXTURE_2D, 0);
-                    gl.Disable(OpenGL.GL_TEXTURE_2D);
-
-                    for (int j = 0; j < enemy.shields.Count; ++j)
+                    health--;
+                    enemies.RemoveAt(i);
+                    i--;
+                    label3.Text = $"Health: {health}";
+                    if (health <= 0)
                     {
-                        float shieldOffsetY = 0.5f;
-                        float shieldGap = 0.25f;
-                        float shieldOffsetX = (j - (enemy.shields.Count - 1) / 2.0f) * shieldGap;
-
-                        gl.Color(colors[enemy.shields[j]]);
-
-                        gl.Begin(OpenGL.GL_QUADS);
-                        gl.Vertex(-0.1f + enemy.positionX + shieldOffsetX, -0.1f + enemy.positionY + shieldOffsetY, 0.0f);
-                        gl.Vertex(0.1f + enemy.positionX + shieldOffsetX, -0.1f + enemy.positionY + shieldOffsetY, 0.0f);
-                        gl.Vertex(0.1f + enemy.positionX + shieldOffsetX, 0.1f + enemy.positionY + shieldOffsetY, 0.0f);
-                        gl.Vertex(-0.1f + enemy.positionX + shieldOffsetX, 0.1f + enemy.positionY + shieldOffsetY, 0.0f);
-                        gl.End();
-                    }
-
-                    if (enemy.positionX >= -0.25f && enemy.positionX <= 0.25f &&
-                        enemy.positionY >= -0.25f && enemy.positionY <= 0.25f)
-                    {
-                        health--;
-                        enemy.isAlive = false;
-                        label3.Text = $"Health: {health}";
-                        if (health <= 0)
-                        {
-                            enemyTimer.Stop();
-                            isAlive = false;
-                            gameOverDialog();
-                        }
+                        enemyTimer.Stop();
+                        isAlive = false;
+                        gameOverDialog();
                     }
                 }
             }
@@ -268,15 +235,13 @@ namespace game_hw
                 {
                     var enemy = enemies[j];
 
-                    if (enemy.isAlive)
-                    {
-                        float enemyLeft = enemy.positionX - 0.25f;
-                        float enemyRight = enemy.positionX + 0.25f;
-                        float enemyBottom = enemy.positionY - 0.25f;
-                        float enemyTop = enemy.positionY + 0.25f;
+                    float enemyLeft = enemy.positionX - 0.25f;
+                    float enemyRight = enemy.positionX + 0.25f;
+                    float enemyBottom = enemy.positionY - 0.25f;
+                    float enemyTop = enemy.positionY + 0.25f;
 
-                        // Bullet hits enemy
-                        if (bullets[i].positionX >= enemyLeft && bullets[i].positionX <= enemyRight &&
+                    // Bullet hits enemy
+                    if (bullets[i].positionX >= enemyLeft && bullets[i].positionX <= enemyRight &&
                             bullets[i].positionY >= enemyBottom && bullets[i].positionY <= enemyTop && enemy.shields[0] == bullet.colorID)
                         {
                             bullets.RemoveAt(i);
@@ -284,7 +249,8 @@ namespace game_hw
                             enemy.shields.RemoveAt(0);
                             if (enemy.shields.Count == 0)
                             {
-                                enemy.isAlive = false;
+                                enemies.RemoveAt(j);
+                                j--;
                                 kills += 1;
                                 if (kills >= 2 * level)
                                 {
@@ -295,7 +261,6 @@ namespace game_hw
                                 }
                             }
                             break;
-                        }
                     }
                 }
             }

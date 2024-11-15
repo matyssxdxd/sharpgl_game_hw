@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SharpGL;
+using SharpGL.SceneGraph.Assets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,13 +18,20 @@ namespace game_hw
         public float positionX;
         public float positionY;
         public List<int> shields = new List<int>();
+        Texture texture = new Texture();
+        static float[] redColor = { 1.0f, 0.0f, 0.0f };
+        static float[] greenColor = { 0.0f, 1.0f, 0.0f };
+        static float[] blueColor = { 0.0f, 0.0f, 1.0f };
+        static float[] yellowColor = { 0.0f, 1.0f, 1.0f };
+        float[][] colors = { redColor, greenColor, blueColor, yellowColor };
 
-        public Enemy(float posX, float posY, List<int> shields)
+        public Enemy(float posX, float posY, List<int> shields, Texture enemyTexture)
         {
             positionX = posX;
             positionY = posY;
             calculateDirection();
             this.shields = shields;
+            this.texture = enemyTexture;
         }
 
         public void die()
@@ -43,9 +52,40 @@ namespace game_hw
             positionY += direcitonY;
         }
 
-        public void draw()
+        public void draw(OpenGL gl)
         {
-            
+            calculatePosition();
+
+            gl.Enable(OpenGL.GL_TEXTURE_2D);
+            texture.Bind(gl);
+
+            gl.Begin(OpenGL.GL_QUADS);
+            gl.Color(1.0f, 1.0f, 1.0f);
+            gl.TexCoord(0.0f, 1.0f); gl.Vertex(-0.25f + positionX, -0.25f + positionY, 0.0f);
+            gl.TexCoord(1.0f, 1.0f); gl.Vertex(0.25f + positionX, -0.25f + positionY, 0.0f);
+            gl.TexCoord(1.0f, 0.0f); gl.Vertex(0.25f + positionX, 0.25f + positionY, 0.0f);
+            gl.TexCoord(0.0f, 0.0f); gl.Vertex(-0.25f + positionX, 0.25f + positionY, 0.0f);
+
+            gl.End();
+
+            gl.BindTexture(OpenGL.GL_TEXTURE_2D, 0);
+            gl.Disable(OpenGL.GL_TEXTURE_2D);
+
+            for (int j = 0; j < shields.Count; ++j)
+            {
+                float shieldOffsetY = 0.5f;
+                float shieldGap = 0.25f;
+                float shieldOffsetX = (j - (shields.Count - 1) / 2.0f) * shieldGap;
+
+                gl.Color(colors[shields[j]]);
+
+                gl.Begin(OpenGL.GL_QUADS);
+                gl.Vertex(-0.1f + positionX + shieldOffsetX, -0.1f + positionY + shieldOffsetY, 0.0f);
+                gl.Vertex(0.1f + positionX + shieldOffsetX, -0.1f + positionY + shieldOffsetY, 0.0f);
+                gl.Vertex(0.1f + positionX + shieldOffsetX, 0.1f + positionY + shieldOffsetY, 0.0f);
+                gl.Vertex(-0.1f + positionX + shieldOffsetX, 0.1f + positionY + shieldOffsetY, 0.0f);
+                gl.End();
+            }
         }
     }
 }
