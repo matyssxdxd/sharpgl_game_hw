@@ -55,6 +55,8 @@ namespace game_hw
             calculatePosition();
 
             gl.Enable(OpenGL.GL_TEXTURE_2D);
+            gl.Enable(OpenGL.GL_BLEND);
+            gl.BlendFunc(OpenGL.GL_SRC_ALPHA, OpenGL.GL_ONE_MINUS_SRC_ALPHA);
             texture.Bind(gl);
 
             gl.Begin(OpenGL.GL_QUADS);
@@ -68,6 +70,7 @@ namespace game_hw
 
             gl.BindTexture(OpenGL.GL_TEXTURE_2D, 0);
             gl.Disable(OpenGL.GL_TEXTURE_2D);
+            gl.Disable(OpenGL.GL_BLEND);
 
             for (int j = 0; j < shields.Count; ++j)
             {

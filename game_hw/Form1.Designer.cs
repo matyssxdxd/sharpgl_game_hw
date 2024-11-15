@@ -39,6 +39,7 @@
             // 
             this.openGLControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.openGLControl1.DrawFPS = false;
+            this.openGLControl1.ForeColor = System.Drawing.SystemColors.ControlText;
             this.openGLControl1.FrameRate = 240;
             this.openGLControl1.Location = new System.Drawing.Point(0, 0);
             this.openGLControl1.Name = "openGLControl1";

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Media;
 using System.Reflection.Emit;
@@ -22,6 +23,8 @@ namespace game_hw
 
         Texture characterTexture = new Texture();
         Texture enemyTexture = new Texture();
+        Texture bulletTexture = new Texture();
+
 
         List<Bullet> bullets = new List<Bullet>();
         List<Enemy> enemies = new List<Enemy>();
@@ -43,7 +46,7 @@ namespace game_hw
         static float[] redColor = {1.0f, 0.0f,  0.0f};
         static float[] greenColor = { 0.0f, 1.0f, 0.0f };
         static float[] blueColor = { 0.0f, 0.0f, 1.0f };
-        static float[] yellowColor = { 0.0f, 1.0f, 1.0f };
+        static float[] yellowColor = { 0.5f, 0.5f, 1.0f };
         float[][] colors = {redColor,  greenColor, blueColor, yellowColor};
 
         bool isAlive = true;
@@ -76,9 +79,11 @@ namespace game_hw
         private void openGLControl1_OpenGLInitialized(object sender, EventArgs e)
         {
             gl = openGLControl1.OpenGL;
+            gl.ClearColor(0.5f, 0.5f, 1.0f, 1.0f);
 
             characterTexture.Create(gl, "./Files/ruds.png");
             enemyTexture.Create(gl, "./Files/test.png");
+            bulletTexture.Create(gl, "./Files/disc.png");
         }
 
         private void openGLControl1_OpenGLDraw(object sender, RenderEventArgs args)
@@ -165,6 +170,8 @@ namespace game_hw
         private void renderPlayer()
         {
             gl.Enable(OpenGL.GL_TEXTURE_2D);
+            gl.Enable(OpenGL.GL_BLEND);
+            gl.BlendFunc(OpenGL.GL_SRC_ALPHA, OpenGL.GL_ONE_MINUS_SRC_ALPHA);
             characterTexture.Bind(gl);
 
             gl.Begin(OpenGL.GL_QUADS);
@@ -180,6 +187,7 @@ namespace game_hw
 
             gl.BindTexture(OpenGL.GL_TEXTURE_2D, 0);
             gl.Disable(OpenGL.GL_TEXTURE_2D);
+            gl.Disable(OpenGL.GL_BLEND);
         }
 
         private void renderEnemies()
@@ -218,7 +226,7 @@ namespace game_hw
             {
                 var bullet = bullets[i];
 
-                bullet.draw(gl);
+                bullet.draw(gl, bulletTexture);
 
                 int originalX = (int)Math.Round((bullets[i].positionX * 90) + openGLControl1.Width / 2);
                 int originalY = (int)Math.Round((bullets[i].positionY * -90) + openGLControl1.Height / 2);
@@ -318,7 +326,6 @@ namespace game_hw
             Bullet bullet = new Bullet(colors[currentBulletColor], mouseX, mouseY, currentBulletColor);
             bullets.Add(bullet);
         }
-
 
     }
 }

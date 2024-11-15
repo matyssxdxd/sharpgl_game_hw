@@ -1,10 +1,6 @@
 ﻿using SharpGL;
+using SharpGL.SceneGraph.Assets;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace game_hw
 {
@@ -17,8 +13,9 @@ namespace game_hw
         public float directionY;
         public float positionX = 0.0f;
         public float positionY = 0.0f;
+        private float rotationAngle = 0.0f;
 
-        public Bullet (float[] color,float mouseX, float mouseY, int colorID)
+        public Bullet(float[] color, float mouseX, float mouseY, int colorID)
         {
             this.color = color;
             this.colorID = colorID;
@@ -36,17 +33,41 @@ namespace game_hw
         {
             positionX += directionX;
             positionY += directionY;
+
+            rotationAngle += 20.0f;
+            if (rotationAngle >= 360.0f)
+            {
+                rotationAngle -= 360.0f;
+            }
         }
 
-        public void draw(OpenGL gl)
+        public void draw(OpenGL gl, Texture texture)
         {
             updatePosition();
 
-            gl.PointSize(2);
-            gl.Begin(SharpGL.Enumerations.BeginMode.Points);
+            gl.Enable(OpenGL.GL_TEXTURE_2D);
+            gl.Enable(OpenGL.GL_BLEND);
+            gl.BlendFunc(OpenGL.GL_SRC_ALPHA, OpenGL.GL_ONE_MINUS_SRC_ALPHA);
+            texture.Bind(gl);
+
+            gl.PushMatrix();
+
+            gl.Translate(positionX, positionY, 0.0f);
+            gl.Rotate(rotationAngle, 0.0f, 0.0f, 1.0f);
+
+            gl.Begin(OpenGL.GL_QUADS);
             gl.Color(color);
-            gl.Vertex(positionX, positionY, 0.0f);
+            gl.TexCoord(0.0f, 1.0f); gl.Vertex(-0.1f, -0.1f, 0.0f);
+            gl.TexCoord(1.0f, 1.0f); gl.Vertex(0.1f, -0.1f, 0.0f);
+            gl.TexCoord(1.0f, 0.0f); gl.Vertex(0.1f, 0.1f, 0.0f);
+            gl.TexCoord(0.0f, 0.0f); gl.Vertex(-0.1f, 0.1f, 0.0f);
             gl.End();
+
+            gl.PopMatrix();
+
+            gl.BindTexture(OpenGL.GL_TEXTURE_2D, 0);
+            gl.Disable(OpenGL.GL_TEXTURE_2D);
+            gl.Disable(OpenGL.GL_BLEND);
         }
     }
 }
